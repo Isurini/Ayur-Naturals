@@ -1,0 +1,91 @@
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* Body */
+body {
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: #4caf50;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Inputs */
+input, select {
+  font-size: 14px;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+/* Form labels */
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* Container */
+div {
+  box-sizing: border-box;
+}
+
+/* Navbar */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Footer */
+footer {
+  margin-top: 50px;
+}
+
+/* Headings */
+h1, h2, h3, h4 {
+  margin-bottom: 10px;
+  color: #4caf50;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+  nav h2 {
+    font-size: 18px;
+  }
+  button {
+    padding: 8px;
+  }
+  form {
+    padding: 15px;
+  }
+}
