@@ -1,60 +1,56 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserFormInput from '../components/UserFormInput';
-import { loginSchema } from '../utils/validators';
 import { setToken } from '../utils/auth';
 import { auth, googleProvider } from '../utils/firebase';
 import { signInWithPopup } from 'firebase/auth';
+import axios from 'axios';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import { FcGoogle } from 'react-icons/fc';
 
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
+    const newErrors = {};
+    if (!formData.email) newErrors.email = 'Email is required';
+    if (!formData.password) newErrors.password = 'Password is required';
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
+
     try {
-      loginSchema.parse(formData);
+      const res = await axios.post('/api/users/login', {
+        email: formData.email,
+        password: formData.password
+      });
 
-      // Check localStorage for user
-      const storedUser = JSON.parse(localStorage.getItem('user'));
-      if (!storedUser || storedUser.email !== formData.email) {
-        setErrors({ email: 'User not found' });
-        return;
+      if (formData.rememberMe) {
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        setToken(res.data.token);
+      } else {
+        sessionStorage.setItem('user', JSON.stringify(res.data.user));
+        sessionStorage.setItem('token', res.data.token);
       }
 
-      // Demo password check (replace with backend check in real app)
-      if (formData.password !== 'demo-token' && formData.password !== 'google-demo-token') {
-        setErrors({ password: 'Incorrect password' });
-        return;
-      }
-
-      // Login success
-      setToken(formData.password);
-      localStorage.setItem('user', JSON.stringify(storedUser));
-
-      // Redirect based on role
-      switch (storedUser.role) {
-        case 'admin': navigate('/dashboard/admin'); break;
-        case 'delivery': navigate('/dashboard/delivery'); break;
-        case 'doctor': navigate('/dashboard/doctor'); break;
-        case 'therapist': navigate('/dashboard/therapist'); break;
-        case 'patient': navigate('/dashboard/patient'); break;
-        case 'customer': navigate('/dashboard/customer'); break;
-        default: navigate('/');
-      }
-
+      navigate('/dashboard/patient');
     } catch (err) {
-      const zodErrors = err.formErrors?.fieldErrors || {};
-      setErrors(zodErrors);
+      setErrors({ backend: err.response?.data.message || 'Login failed' });
     }
   };
 
@@ -64,33 +60,134 @@ const Login = () => {
       const user = {
         email: result.user.email,
         firstName: result.user.displayName || 'Google',
-        role: 'patient' // default role for Google login
+        type: 'user'
       };
-      localStorage.setItem('user', JSON.stringify(user));
-      setToken('google-demo-token');
+      const res = await axios.post('/api/users/google-login', user);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      setToken(res.data.token);
       navigate('/dashboard/patient');
     } catch (err) {
-      console.error('Google login failed:', err);
+      setErrors({ backend: 'Google login failed' });
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', borderRadius: '10px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Login</h2>
+    <div style={{
+      maxWidth: '400px',
+      margin: '50px auto',
+      padding: '20px',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      borderRadius: '10px',
+      background: '#fff',
+      color: '#000'
+    }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '32px' }}>Login</h1>
+
       <form onSubmit={handleSubmit}>
-        <UserFormInput label="Email" name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} />
-        <UserFormInput label="Password" name="password" type="password" value={formData.password} onChange={handleChange} error={errors.password} />
-        <button type="submit" style={{ width: '100%', padding: '10px', background: '#4caf50', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Login</button>
+        {/* Email */}
+        <div style={{ marginBottom: '10px' }}>
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="example@gmail.com"
+            style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}
+          />
+          {errors.email && <p style={{ color: 'red', fontSize: '12px' }}>{errors.email}</p>}
+        </div>
+
+        {/* Password */}
+        <div style={{ marginBottom: '10px' }}>
+          <label>Password</label>
+          <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Your password"
+              style={{ flex: 1, padding: '8px 35px 8px 8px', borderRadius: '6px', border: '1px solid #ccc' }}
+            />
+            <span
+              onClick={() => setShowPassword(prev => !prev)}
+              style={{ position: 'absolute', right: '8px', cursor: 'pointer' }}
+            >
+              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </span>
+          </div>
+          {errors.password && <p style={{ color: 'red', fontSize: '12px' }}>{errors.password}</p>}
+        </div>
+
+        {/* Remember Me & Forgot Password */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <label>
+            <input
+              type="checkbox"
+              name="rememberMe"
+              checked={formData.rememberMe}
+              onChange={handleChange}
+              style={{ marginRight: '5px' }}
+            />
+            Remember Me
+          </label>
+          <span
+            style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+            onClick={() => navigate('/forgot-password')}
+          >
+            Forgot Password?
+          </span>
+        </div>
+
+        {errors.backend && <p style={{ color: 'red', fontSize: '12px', textAlign: 'center' }}>{errors.backend}</p>}
+
+        <button
+          type="submit"
+          style={{
+            width: '100%',
+            padding: '12px',
+            background: '#4caf50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            marginBottom: '15px'
+          }}
+        >
+          Login
+        </button>
       </form>
 
-      <div style={{ textAlign: 'center', marginTop: '15px' }}>
-        <button onClick={handleGoogleLogin} style={{ padding: '10px', background: '#db4437', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+      {/* Google login */}
+      <div style={{ textAlign: 'center', marginTop: '10px' }}>
+        <button onClick={handleGoogleLogin} style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          padding: '10px 20px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          background: '#fff',
+          color: '#000',
+          cursor: 'pointer',
+          fontSize: '16px'
+        }}>
+          <FcGoogle style={{ fontSize: '20px' }} />
           Login with Google
         </button>
       </div>
 
-      <p style={{ textAlign: 'center', marginTop: '10px' }}>
-        Forgot password? <a href="/signup">Reset here</a>
+      <p style={{ textAlign: 'center', marginTop: '15px' }}>
+        Don't have an account?{' '}
+        <span
+          style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+          onClick={() => navigate('/signup')}
+        >
+          Signup
+        </span>
       </p>
     </div>
   );
