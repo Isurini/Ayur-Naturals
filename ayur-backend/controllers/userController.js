@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET; //  use .env secret
 
-//  Get all users (Admin use case)
+//  Get all users 
 export function getUsers(req, res) {
     User.find()
         .then((userList) => {
@@ -15,7 +15,7 @@ export function getUsers(req, res) {
         });
 }
 
-//  Signup / Register user
+//  Signup user
 export async function createUser(req, res) {
     try {
         const { email, firstName, lastName, password } = req.body;
@@ -63,7 +63,7 @@ export async function loginUser(req, res) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        // Fetch JWT secret here
+        // Fetch JWT secret 
         const JWT_SECRET = process.env.JWT_SECRET;
         console.log("JWT_SECRET inside loginUser:", JWT_SECRET);
 

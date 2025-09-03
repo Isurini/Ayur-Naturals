@@ -6,11 +6,10 @@ const userRouter = express.Router();
 
 userRouter.get("/",getUsers)
 
-// Public routes
+//routes
 userRouter.post("/signup", createUser);
 userRouter.post("/login", loginUser);
 
-// Protected routes
 userRouter.get("/profile", authMiddleware, getProfile);
 userRouter.put("/profile", authMiddleware, updateProfile);
 

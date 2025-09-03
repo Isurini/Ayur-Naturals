@@ -15,7 +15,8 @@ const Profile = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    // 🔹 Fetch profile from backend (auto-fill after login)
+    
+    //  Fetch profile from backend (auto-fill after login)
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
