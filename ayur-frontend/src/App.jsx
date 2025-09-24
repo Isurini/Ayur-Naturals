@@ -8,13 +8,12 @@ import Profile from './pages/Profile';
 import VerifyOTP from './pages/VerifyOTP';
 import ResetPassword from './pages/ResetPassword';
 import ForgotPassword from './pages/ForgotPassword';
-import AdminDashboard from './pages/AdminDashboard';
-import DeliveryDashboard from './pages/DeliveryDashboard';
-import DoctorDashboard from './pages/DoctorDashboard';
-import TherapistDashboard from './pages/TherapistDashboard';
-import PatientDashboard from './pages/PatientDashboard';
-import CustomerDashboard from './pages/CustomerDashboard';
+import PatientDashboard from './pages/UserDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+
+//  New imports for Feedback system
+import UserFeedbackPage from './pages/UserFeedbackPage';
+import AdminFeedbackPage from './pages/AdminFeedbackPage';
 
 const App = () => {
   return (
@@ -39,50 +38,29 @@ const App = () => {
           />
 
           <Route
-            path="/dashboard/admin"
+            path="/dashboard/user"
+            element={
+              <ProtectedRoute allowedRoles={['user']}>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/*  Feedback system routes */}
+          <Route
+            path="/feedback"
+            element={
+              <ProtectedRoute allowedRoles={['user']}>
+                <UserFeedbackPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/feedbacks"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/delivery"
-            element={
-              <ProtectedRoute allowedRoles={['delivery']}>
-                <DeliveryDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/doctor"
-            element={
-              <ProtectedRoute allowedRoles={['doctor']}>
-                <DoctorDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/therapist"
-            element={
-              <ProtectedRoute allowedRoles={['therapist']}>
-                <TherapistDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/patient"
-            element={
-              <ProtectedRoute allowedRoles={['patient']}>
-                <PatientDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/customer"
-            element={
-              <ProtectedRoute allowedRoles={['customer']}>
-                <CustomerDashboard />
+                <AdminFeedbackPage />
               </ProtectedRoute>
             }
           />
