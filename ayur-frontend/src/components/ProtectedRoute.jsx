@@ -4,7 +4,17 @@ import { getToken } from '../utils/auth';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const token = getToken();
-  const user = JSON.parse(localStorage.getItem('user'));
+
+  let user = null;
+  try {
+    const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (storedUser && storedUser !== "undefined" && storedUser !== "null") {
+      user = JSON.parse(storedUser);
+    }
+  } catch (err) {
+    console.error("Failed to parse user from storage in ProtectedRoute:", err);
+    user = null;
+  }
 
   if (!token || !user) {
     return <Navigate to="/login" replace />;

@@ -1,13 +1,27 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const navigate = useNavigate();
+
+  // Safely parse user
+  let user = null;
+  try {
+    const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+  if (storedUser && storedUser !== "undefined" && storedUser !== "null") {
+    user = JSON.parse(storedUser);
+  }
+ } catch (err) {
+    console.error("Failed to parse user from storage:", err);
+    user = null;
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    navigate('/login'); // ✅ better than window.location.href
   };
 
   return (

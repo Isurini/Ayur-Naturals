@@ -8,12 +8,14 @@ import Profile from './pages/Profile';
 import VerifyOTP from './pages/VerifyOTP';
 import ResetPassword from './pages/ResetPassword';
 import ForgotPassword from './pages/ForgotPassword';
-import PatientDashboard from './pages/UserDashboard';
+import UserDashboard from './pages/UserDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
-//  New imports for Feedback system
+// Feedback system
 import UserFeedbackPage from './pages/UserFeedbackPage';
 import AdminFeedbackPage from './pages/AdminFeedbackPage';
+import StaffDashboard from './pages/StaffDashboard';
+import FeedbackDashboard from './pages/FeedbackDashboard';
 
 const App = () => {
   return (
@@ -21,6 +23,7 @@ const App = () => {
       <Navbar />
       <div style={{ minHeight: '80vh' }}>
         <Routes>
+          {/* Auth routes */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -28,6 +31,20 @@ const App = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
 
+          {/* Admin routes */}
+          <Route path="/admin/users" element={<UserDashboard />} />
+          <Route path="/admin/staff" element={<StaffDashboard />} />
+          <Route path="/admin/feedback" element={<FeedbackDashboard />} />
+          <Route
+            path="/admin/feedbacks"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminFeedbackPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* User routes */}
           <Route
             path="/profile"
             element={
@@ -36,7 +53,6 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/dashboard/user"
             element={
@@ -45,22 +61,11 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
-          {/*  Feedback system routes */}
           <Route
             path="/feedback"
             element={
               <ProtectedRoute allowedRoles={['user']}>
                 <UserFeedbackPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/feedbacks"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminFeedbackPage />
               </ProtectedRoute>
             }
           />

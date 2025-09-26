@@ -1,26 +1,32 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import userRouter from './routes/userRouter.js';
+// index.js
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import userRouter from "./routes/userRouter.js";
 import feedbackRoutes from "./routes/feedbackRouter.js";
 
-// Load environment variables
 dotenv.config();
 const app = express();
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URL, {})
-const connection = mongoose.connection;
-connection.once("open", () => {
-    console.log("Database Connected");
-});
+// Middleware
+app.use(express.json());
 
-app.use(bodyParser.json());
-//Routes
+// MongoDB Connection
+const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/ayurdb";
+mongoose
+  .connect(MONGO_URL)
+  .then(() => console.log("Database Connected"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
+
+// Routes
 app.use("/api/users", userRouter);
 app.use("/api/feedbacks", feedbackRoutes);
 
-app.listen(5000, () => {
-    console.log("Server is running on port 5000");
+// Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

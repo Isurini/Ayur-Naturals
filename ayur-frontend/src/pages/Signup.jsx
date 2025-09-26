@@ -69,7 +69,7 @@ const Signup = () => {
       };
       localStorage.setItem('user', JSON.stringify(user));
       setToken('google-demo-token');
-      navigate('/dashboard/patient');
+      navigate('/dashboard/user');
     } catch (err) {
       setErrors({ backend: 'Google login failed' });
     }
@@ -147,7 +147,7 @@ const Signup = () => {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold' }}>
                 <AiOutlineExclamationCircle style={{ fontSize: '16px', color: '#856404' }} />
-                <span>Warning!</span>
+                <span>Password Tips!</span>
               </div>
               <span>Must be at least 8 characters, include uppercase, lowercase, number, and symbol.</span>
             </div>

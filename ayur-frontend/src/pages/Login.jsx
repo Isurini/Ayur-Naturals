@@ -48,7 +48,7 @@ const Login = () => {
         sessionStorage.setItem('token', res.data.token);
       }
 
-      navigate('/dashboard/patient');
+      navigate('/dashboard/user');
     } catch (err) {
       setErrors({ backend: err.response?.data.message || 'Login failed' });
     }
@@ -65,7 +65,7 @@ const Login = () => {
       const res = await axios.post('/api/users/google-login', user);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       setToken(res.data.token);
-      navigate('/dashboard/patient');
+      navigate('/dashboard/user');
     } catch (err) {
       setErrors({ backend: 'Google login failed' });
     }

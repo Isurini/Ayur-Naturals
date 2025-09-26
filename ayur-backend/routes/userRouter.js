@@ -1,18 +1,44 @@
-import express from 'express';
-import { getUsers, createUser, deleteUser, loginUser, getProfile, updateProfile } from "../controllers/userController.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import express from "express";
+import {
+  signup,
+  login,
+  createStaff,
+  listUsers,
+  updateUserStatus,
+  deleteUser,
+  exportUsersPDF,
+  getProfile,
+  updateProfile,
+  getMonthlyStats,
+  requestDeleteAccount,
+  listDeletionRequests,
+} from "../controllers/userController.js";
+import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
-const userRouter = express.Router();
+const router = express.Router();
 
-userRouter.get("/",getUsers)
+// ===== Auth =====
+router.post("/signup", signup);
+router.post("/login", login);
 
-//routes
-userRouter.post("/signup", createUser);
-userRouter.post("/login", loginUser);
+// ===== Profile =====
+router.get("/profile", protect, getProfile);
+router.put("/profile", protect, updateProfile);
+router.post("/request-delete", protect, requestDeleteAccount);
 
-userRouter.get("/profile", authMiddleware, getProfile);
-userRouter.put("/profile", authMiddleware, updateProfile);
+// ===== Users (Admin only) =====
+router.get("/", protect, isAdmin, listUsers);
+router.patch("/:id/status", protect, isAdmin, updateUserStatus);
+router.delete("/:id", protect, isAdmin, deleteUser);
+router.get("/export/pdf", protect, isAdmin, exportUsersPDF);
 
-userRouter.delete("/:email",deleteUser)
+// ===== Stats (Admin only) =====
+router.get("/stats/monthly", protect, isAdmin, getMonthlyStats);
 
-export default userRouter;
+// ===== Staff (Admin only) =====
+router.post("/staff", protect, isAdmin, createStaff);
+
+// ===== Deletion Requests (Admin only) =====
+router.get("/deletion-requests", protect, isAdmin, listDeletionRequests);
+
+export default router;
